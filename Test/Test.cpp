@@ -3,24 +3,28 @@
 
 #include <iostream>
 #include <vector>
+#include <chrono>
 
-void printVec(const std::vector<int>& vec)
+template<typename N>
+void printVec(const std::vector<N>& vec)
 {
-	for (const int& elem : vec)
+	for (const N& elem : vec)
 	{
 		std::cout << elem << ' ';
 	}
 	std::cout << std::endl;
 }
 
-void iterateOnSets(std::vector<int>& vec, std::vector<int> freeSlots, std::vector<int> result)
+template<typename N>
+void iterateOnSets(std::vector<N>& vec, std::vector<N> freeSlots, std::vector<N> result, long& counter)
 {
 	int placed = result.size();
 	int length = vec.size();
 	
 	if (placed == length)
 	{
-		printVec(result);
+		//printVec(result);
+		++counter;
 	}
 	else
 	{
@@ -28,39 +32,59 @@ void iterateOnSets(std::vector<int>& vec, std::vector<int> freeSlots, std::vecto
 		{
 			if (freeSlots[k])
 			{
-				std::vector<int> freeSlots2 = freeSlots;
-				std::vector<int> result2 = result;
+				std::vector<N> freeSlots2 = freeSlots;
+				std::vector<N> result2 = result;
 
 				result2.push_back(vec[k]);
 				freeSlots2[k] = 0;
-				iterateOnSets(vec, freeSlots2, result2);
+				iterateOnSets(vec, freeSlots2, result2, counter);
 			}
 		}
 	}
 }
 
-void shuffle(std::vector<int>& vec)
+template<typename N>
+void shuffle(std::vector<N>& vec, long& counter)
 {
-	std::vector<int> result;
-	std::vector<int> freeSlots;
+	std::vector<N> result;
+	std::vector<N> freeSlots;
 
 	for (int i(vec.size()); i--;)
 	{
 		freeSlots.push_back(1);
 	}
 
-	iterateOnSets(vec, freeSlots, result);
+	iterateOnSets(vec, freeSlots, result, counter);
 }
 
 int main()
 {
 	std::vector<int> vec;
-	for (int i(9); i--;)
+	int n = 10;
+	for (int i(n); i--;)
 	{
-		vec.push_back(9-i);
+		vec.push_back(n-i);
 	}
 
-	shuffle(vec);
+	/*std::vector<char> vec;
+	vec.push_back('A');
+	vec.push_back('B');
+	vec.push_back('C');
+	vec.push_back('D');
+	vec.push_back('E');*/
+
+	long counter = 0;
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+	
+	std::cout << "start" << std::endl;
+	start = std::chrono::system_clock::now();
+	shuffle(vec, counter);
+	end = std::chrono::system_clock::now();
+	std::cout << "done: " << counter << " shuffles checked" << std::endl;
+
+	double elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	int speed = counter / elapsed_ms * 1000;
+	std::cout << "Speed: " << speed << " shuffles/sec (" << counter << " shuffles in " << elapsed_ms << " ms)" << std::endl;
 
     return 0;
 }
