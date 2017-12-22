@@ -20,12 +20,7 @@ void iterateOnSets(std::vector<N>& vec, size_t placed, long& counter)
 {
 	int length = vec.size();
 	
-	if (placed == length)
-	{
-		//printVec(vec);
-		++counter;
-	}
-	else
+	if (placed != length)
 	{
 		std::vector<N> vec2 = vec;
 		iterateOnSets(vec2, placed + 1, counter);
@@ -35,6 +30,11 @@ void iterateOnSets(std::vector<N>& vec, size_t placed, long& counter)
 			std::swap(vec2[k], vec2[placed]);
 			iterateOnSets(vec2, placed+1, counter);
 		}
+	}
+	else
+	{
+		//printVec(vec);
+		++counter;
 	}
 }
 
@@ -47,7 +47,7 @@ void shuffle(std::vector<N>& vec, long& counter)
 int main()
 {
 	std::vector<int> vec;
-	int n = 10;
+	int n = 9;
 	for (int i(n); i--;)
 	{
 		vec.push_back(n-i);
