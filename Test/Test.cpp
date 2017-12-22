@@ -17,14 +17,13 @@ void printVec(const std::vector<N>& vec)
 
 template<typename N>
 void iterateOnSets(std::vector<N>& vec, size_t placed, long& counter)
-{
-	int length = vec.size();
-	
+{	
+	size_t length = vec.size();
 	if (placed != length)
 	{
 		std::vector<N> vec2 = vec;
 		iterateOnSets(vec2, placed + 1, counter);
-		for (int k(placed+1); k < length; ++k)
+		for (size_t k(placed+1); k < length; ++k)
 		{
 			vec2 = vec;
 			std::swap(vec2[k], vec2[placed]);
