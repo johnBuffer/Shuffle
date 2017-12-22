@@ -68,23 +68,29 @@ void loadDict(const std::string& filename, s2wmap& snd2str, w2smap& str2snd)
 		{
 			if (line[0] != '#')
 			{
-				size_t sep = line.find('_');
-				std::string word = line.substr(0, sep);
-				std::string sound = line.substr(sep + 1);
-
 				std::string::iterator end_it = utf8::find_invalid(line.begin(), line.end());
-				if (end_it != line.end()) {
-					//std::cout << "Invalid UTF-8" << std::endl;
+				if (end_it != line.end())
+				{
 					++invalid;
-					//std::cout << "This part is fine: " << std::string(line.begin(), end_it) << "\n";
 				}
 				else
 				{
-					std::vector<unsigned short> utf16line;
-					utf8::utf8to16(line.begin(), end_it, back_inserter(utf16line));
+					std::string soundLine;
+					std::getline(file, soundLine);
+					std::string::iterator end_sound_it = utf8::find_invalid(soundLine.begin(), soundLine.end());
+					if (end_sound_it != soundLine.end())
+					{
+						++invalid;
+					}
+					else
+					{
+						std::vector<unsigned short> utf16line;
+						utf8::utf8to16(soundLine.begin(), end_sound_it, back_inserter(utf16line));
 
-					snd2str[utf16line] = word;
-					str2snd[word] = utf16line;
+						snd2str[utf16line] = line;
+						str2snd[line] = utf16line;
+						//std::cout << "|" << line << "|" << std::endl;
+					}
 				}
 
 			}
@@ -130,7 +136,7 @@ int main()
 
 	loadDict("dict.txt", snd2str, str2snd);
 
-	parseStr(u8"albinos", snd2str, str2snd);
+	parseStr(u8"être", snd2str, str2snd);
 
 	std::vector<int> vec;
 	int n = 9;
