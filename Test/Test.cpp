@@ -16,29 +16,24 @@ void printVec(const std::vector<N>& vec)
 }
 
 template<typename N>
-void iterateOnSets(std::vector<N>& vec, std::vector<N> freeSlots, std::vector<N> result, long& counter)
+void iterateOnSets(std::vector<N>& vec, size_t placed, long& counter)
 {
-	int placed = result.size();
 	int length = vec.size();
 	
 	if (placed == length)
 	{
-		//printVec(result);
+		//printVec(vec);
 		++counter;
 	}
 	else
 	{
-		for (int k(0); k < length; ++k)
+		std::vector<N> vec2 = vec;
+		iterateOnSets(vec2, placed + 1, counter);
+		for (int k(placed+1); k < length; ++k)
 		{
-			if (freeSlots[k])
-			{
-				std::vector<N> freeSlots2 = freeSlots;
-				std::vector<N> result2 = result;
-
-				result2.push_back(vec[k]);
-				freeSlots2[k] = 0;
-				iterateOnSets(vec, freeSlots2, result2, counter);
-			}
+			vec2 = vec;
+			std::swap(vec2[k], vec2[placed]);
+			iterateOnSets(vec2, placed+1, counter);
 		}
 	}
 }
@@ -46,15 +41,7 @@ void iterateOnSets(std::vector<N>& vec, std::vector<N> freeSlots, std::vector<N>
 template<typename N>
 void shuffle(std::vector<N>& vec, long& counter)
 {
-	std::vector<N> result;
-	std::vector<N> freeSlots;
-
-	for (int i(vec.size()); i--;)
-	{
-		freeSlots.push_back(1);
-	}
-
-	iterateOnSets(vec, freeSlots, result, counter);
+	iterateOnSets(vec, 0, counter);
 }
 
 int main()
@@ -73,18 +60,35 @@ int main()
 	vec.push_back('D');
 	vec.push_back('E');*/
 
+	int n_tests = 20;
+	double meanTime = 0;
+	double meanSpeed = 0;
 	long counter = 0;
-	std::chrono::time_point<std::chrono::system_clock> start, end;
-	
-	std::cout << "start" << std::endl;
-	start = std::chrono::system_clock::now();
-	shuffle(vec, counter);
-	end = std::chrono::system_clock::now();
-	std::cout << "done: " << counter << " shuffles checked" << std::endl;
 
-	double elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	int speed = counter / elapsed_ms * 1000;
-	std::cout << "Speed: " << speed << " shuffles/sec (" << counter << " shuffles in " << elapsed_ms << " ms)" << std::endl;
+	for (int i(n_tests); i--;)
+	{
+		counter = 0;
+		std::chrono::time_point<std::chrono::system_clock> start, end;
+
+		std::cout << "starting test [" << n_tests-i << "]" << std::endl;
+		start = std::chrono::system_clock::now();
+		shuffle(vec, counter);
+		end = std::chrono::system_clock::now();
+
+		double elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+		meanTime += elapsed_ms;
+
+		double speed = counter / elapsed_ms * 1000;
+
+		meanSpeed += speed;
+	}
+
+	std::cout << "\n=============================" << std::endl;
+	std::cout << n << " elements" << std::endl;
+	std::cout << "Speed: " << meanSpeed / double(n_tests) << " shuffles/sec" << std::endl;
+	std::cout << counter << " shuffles in " << meanTime / double(n_tests) << " ms)" << std::endl;
+	std::cout << "=============================\n" << std::endl;
 
     return 0;
 }
